@@ -1,0 +1,178 @@
+body {
+	width: 100%;
+    height: 100%;
+    overflow: hidden;
+	background-color: #60CDDD;
+}
+#loginSection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 500px;
+	height: 250px;
+    margin: auto;
+}
+#loginHeader {
+	position: relative;
+	height: 40px;
+	background-color: #1297EB;
+	border: 1px solid #D6E1E8;
+}
+#loginHeader .title {
+    height: 40px;
+    line-height: 40px;
+	margin: auto;
+	color: #fff;
+	font-size: 18px;
+	text-align: center;
+}
+#loginContent {
+	height: 130px;
+	background-color: #1297EB;
+	border: 1px solid #D6E1E8;
+}
+#loginContent .loginInputArea {
+	display: inline-block;
+}
+#loginContent .inputAccountText,
+#loginContent .inputPasswordText {
+	width: 380px;
+	height: 30px;
+	padding: 10px 10px 5px 10px;	
+}
+#loginContent .inputAccountText input,
+#loginContent .inputPasswordText input {
+	width: 100%;
+	height: 30px;
+	padding: 0px 5px;
+	font-size: 13px;
+}
+#loginContent .submitArea {
+	width: 90px;
+    height: 80px;
+    vertical-align: top;
+    display: inline-block;
+    margin-top: 8px;
+    margin-left: 5px;
+}
+#loginContent .submitArea:hover {
+	cursor: pointer;
+	background-color: #186A9E;
+}
+#loginContent .submit {
+	height: 80px;
+    line-height: 80px;
+	color: #fff;
+	font-size: 18px;
+	text-align: center;
+}
+#loginContent .submit:hover {
+	color: #222;
+}
+.joinArea {
+	padding: 5px 15px;
+}
+.joinArea .joinButton {
+	display: inline-block;
+	font-size: 14px;
+	color: #fff;	
+}
+.joinArea .joinButton:hover {
+	cursor: pointer;
+	color: #222;
+}
+#loginJoinContent {
+	position: relative;
+	width: 500px;
+	height: 500px;
+}
+#loginJoinContent .animate-hide {
+	background-color: #1297EB;
+}
+.joinContent {
+	position: relative;
+	width: 480px;
+	height: 280px;
+	background-color: #1297EB;
+}
+.joinContent .joinInputForm {
+	width: 330px;
+	display: inline-block;
+}
+.joinContent .joinForm .header {
+    position: relative;
+    border-bottom: 1px solid #222;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+.joinContent .joinForm .header .title {
+    position: relative;
+    width: 300px;
+    height: 30px;
+    line-height: 30px;
+    display: inline-block;
+    color: #222;
+    vertical-align: top;
+    font-size: 28px;
+}
+.joinContent .joinForm .header .cancel {
+	position: absolute;
+	width: 30px;
+	height: 30px;
+	right: 10px;
+	display: inline-block;
+	background-image: url("/images/common/cancelButton.png");
+}
+.joinContent .joinForm .titleAttr {
+	padding: 3px 10px 0px 10px;
+	font-size: 18px;
+	color: #fff;
+}
+.joinContent .joinForm .joinAttr {
+	padding: 10px 10px 0px 10px;
+	width: 300px;
+	height: 38px;
+}
+.joinContent .joinForm .joinAttr input {
+	width: 300px;
+	height: 28px;
+	line-height: 28px;
+}
+.joinContent .submitArea {
+    width: 100px;
+    display: inline-block;
+    vertical-align: top;
+    height: 210px;
+    line-height: 210px;
+    text-align: center;
+}
+.joinContent .submitArea .submit {
+    color: #fff;
+    font-size: 28px;
+}
+.joinContent .submitArea .submit:hover {
+	cursor: pointer;
+	background-color: #186A9E;
+}
+.animate-hide {
+	position: relative;
+	-webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 300ms;
+	-moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 300ms;
+	-o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 300ms;
+	transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 300ms;
+	line-height:20px;
+	opacity:1;
+	padding:10px;
+	border:1px solid black;
+	background:white;
+	top: -200px;
+}
+
+.animate-hide.ng-hide {
+	line-height:0;
+	opacity:0;
+	padding:0 10px;
+	top: -500px;
+}

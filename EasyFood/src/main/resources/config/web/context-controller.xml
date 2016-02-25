@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	
+    <bean id="jsonMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
+	<bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
+		<property name="objectMapper" ref="jsonMapper" />
+	</bean>
+	
+	<bean name="testController" class="com.test.controller.TestController"></bean>
+	<bean name="recipeController" class="com.controller.recipe.RecipeController"></bean>
+	<bean name="userInfoController" class="com.controller.userInfo.UserInfoController"></bean>
+	
+</beans>

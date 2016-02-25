@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="ingredient">
+     <sql id="ingredient.cloumn">
+         ID,
+         Name
+     </sql>
+     <sql id="ingredient.values">
+         #{id},
+         #{name}
+     </sql>
+<!--      <select id="selectBaseTest" parameterType="hashmap" resultType="hashmap"> -->
+<!--         <![CDATA[ -->
+<!--             SELECT -->
+<!--                 ID_, -->
+<!--                 PRODUCT, -->
+<!--                 PNUM -->
+<!--             FROM -->
+<!--                 BASETEST -->
+<!--         ]]> -->
+<!--     </select> -->
+	<insert id="ingredient.create">
+	    insert into Ingredient (<include refid="ingredient.cloumn"></include>)
+  		values (<include refid="ingredient.values"></include>)
+	</insert>
+	
+	<update id="ingredient.update">
+	    update Ingredient
+	    <set>
+	        <if test="name != null">name=#{name}</if>
+	    </set>
+	    where id=#{id}
+	</update>
+	
+	<delete id="ingredient.delete" parameterType="String">
+	    delete from Ingredient where id=#{id}
+	</delete>
+    
+</mapper>

@@ -1,0 +1,28 @@
+<article class="createRecipePopup">
+	<div class="popupHeader">
+		<div class="title">{{title}}</div>
+		<div class="close" ng-click="clickClosePopup($event)"></div>
+	</div>
+	<div class="popupContent">
+		<div class="contentRow name">
+			<div class="inputTitle">{{recipeName}}</div>
+			<div class="inputArea">
+				<input type="text" class="recipeName"/>
+			</div>
+		</div>
+		<div class="contentRow description">
+			<div class="inputTitle">{{recipeDescription}}</div>
+			<div class="addButton" ng-click="addDescription($event)">{{add}}</div>
+			<div class="recipeDescription"></div>
+		</div>
+		<div class="contentRow ingredient">
+			<div class="inputTitle">{{recipeIngredient}}</div>
+			<div class="inputArea">
+				
+			</div>
+		</div>
+	</div>
+	<div class="popupBottom">
+		<div class="submit" ng-click="clickSubmitPopup($event)">{{create}}</div>
+	</div>
+</article>
