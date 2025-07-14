@@ -9,8 +9,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<LoginPage onLogin={setUser} />} />
-        <Route path="/" element={user ? <RecipesPage /> : <Navigate to="/login" />} />
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/" replace /> : <LoginPage onLogin={setUser} />}
+        />
+        <Route path="/" element={user ? <RecipesPage /> : <Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );
