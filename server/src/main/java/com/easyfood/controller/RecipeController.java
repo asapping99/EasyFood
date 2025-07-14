@@ -2,6 +2,7 @@ package com.easyfood.controller;
 
 import com.easyfood.entity.Recipe;
 import com.easyfood.repository.RecipeRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/recipes")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class RecipeController {
     private final RecipeRepository recipeRepository;
 
@@ -18,8 +19,8 @@ public class RecipeController {
     }
 
     @GetMapping
-    public List<Recipe> list() {
-        return recipeRepository.findAll();
+    public List<Recipe> list(Pageable pageable) {
+        return recipeRepository.findAll(pageable).getContent();
     }
 
     @GetMapping("/{id}")
