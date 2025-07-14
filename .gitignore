@@ -2,3 +2,5 @@
 server/.gradle
 server/.idea
 server/build/
+
+client/node_modules/
