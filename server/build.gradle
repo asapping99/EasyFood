@@ -6,7 +6,8 @@ plugins {
 
 group = 'com.easyfood'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '21'
+sourceCompatibility = '20'
+targetCompatibility = '20'
 
 def springBootVersion = '3.1.5'
 
