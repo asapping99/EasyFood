@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const submit = async (e) => {
     e.preventDefault();
@@ -16,6 +18,7 @@ function LoginPage({ onLogin }) {
     if (res.ok) {
       const user = await res.json();
       onLogin(user);
+      navigate('/');
     } else {
       alert('로그인 실패');
     }

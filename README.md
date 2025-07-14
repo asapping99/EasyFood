@@ -19,5 +19,5 @@ cd client
 npm install
 npm start
 ```
-
+클라이언트는 package.json의 `proxy` 설정(`http://localhost:8080`)을 통해 서버의 API를 호출합니다.
 서버와 클라이언트는 각각 8080, 3000 포트를 사용합니다.
