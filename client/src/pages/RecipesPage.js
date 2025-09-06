@@ -9,7 +9,7 @@ function RecipesPage() {
 
   const load = async () => {
     const res = await fetch(`/api/recipes?page=${page}&size=10`);
-    const data = await res.json();
+    const data = await res?.json?.();
     if (data.length < 10) setHasMore(false);
     setItems(prev => [...prev, ...data]);
     setPage(p => p + 1);
@@ -27,7 +27,7 @@ function RecipesPage() {
         hasMore={hasMore}
         loader={<h4>로딩중...</h4>}
       >
-        {items.map(r => (
+        {items?.map?.(r => (
           <Card key={r.id} sx={{ mb: 2 }}>
             <CardContent>
               <Typography variant="h6">{r.title}</Typography>
