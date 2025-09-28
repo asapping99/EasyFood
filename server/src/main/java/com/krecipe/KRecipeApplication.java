@@ -8,7 +8,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
 public class KRecipeApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(KRecipeApplication.class, args);
         System.out.println("=====================================");
