@@ -7,6 +7,7 @@ import Footer from './components/layout/Footer';
 import LoginPage from './components/auth/LoginPage';
 import HomePage from './components/recipe/HomePage';
 import RecipeDetail from './components/recipe/RecipeDetail';
+import RecipeForm from './components/recipe/RecipeForm';
 
 // Utils
 import { apiRequest, tokenManager } from './utils/api';
@@ -139,6 +140,7 @@ const App = () => {
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
             onRecipeClick={handleRecipeClick}
+            onNavigate={handleNavigate}
             user={user}
           />
         )}
@@ -153,28 +155,18 @@ const App = () => {
         )}
 
         {currentPage === 'create' && (
-          <div className="container mx-auto px-4 py-8">
-            <div className="max-w-2xl mx-auto glass-morphism rounded-3xl p-8 border border-gray-200">
-              <h1 className="text-3xl font-bold text-gray-800 mb-6">새 레시피 등록</h1>
-              <p className="text-gray-600 mb-8">나만의 특별한 레시피를 공유해보세요!</p>
-              
-              <div className="text-center py-16">
-                <div className="bg-gradient-to-r from-orange-100 to-red-100 rounded-2xl p-8">
-                  <p className="text-lg text-gray-700 mb-4">🚧 레시피 등록 기능을 준비 중입니다</p>
-                  <p className="text-gray-600">곧 멋진 레시피 등록 폼이 여기에 나타날 예정이에요!</p>
-                </div>
-              </div>
-              
-              <div className="flex justify-center">
-                <button
-                  onClick={() => setCurrentPage('home')}
-                  className="px-6 py-3 btn-primary text-white rounded-xl font-semibold"
-                >
-                  홈으로 돌아가기
-                </button>
-              </div>
-            </div>
-          </div>
+          <RecipeForm 
+            setCurrentPage={setCurrentPage} 
+            user={user}
+          />
+        )}
+
+        {currentPage === 'edit' && selectedRecipeId && user && (
+          <RecipeForm 
+            setCurrentPage={setCurrentPage} 
+            recipeId={selectedRecipeId}
+            user={user}
+          />
         )}
 
         {currentPage === 'profile' && (

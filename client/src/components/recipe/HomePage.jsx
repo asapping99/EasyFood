@@ -10,6 +10,7 @@ const HomePage = ({
   selectedCategory, 
   setSelectedCategory, 
   onRecipeClick,
+  onNavigate,
   user 
 }) => {
   const [stats, setStats] = useState({
@@ -187,7 +188,10 @@ const HomePage = ({
                 )}
               </p>
               {user && !searchTerm && (
-                <button className="px-6 py-3 btn-primary text-white rounded-xl font-semibold">
+                <button 
+                  onClick={() => onNavigate('create')}
+                  className="px-6 py-3 btn-primary text-white rounded-xl font-semibold"
+                >
                   첫 레시피 등록하기
                 </button>
               )}
