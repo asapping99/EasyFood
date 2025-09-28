@@ -1,6 +1,5 @@
 package com.krecipe.dto;
 
-import com.krecipe.entity.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -13,6 +12,6 @@ import lombok.Builder;
 public class TokenResponse {
     private String token;
     private String type;
-    private User user;
+    private UserDto user;  // User 대신 UserDto 사용
     private Long expiresIn;
 }

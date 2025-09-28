@@ -26,3 +26,30 @@ public class RecipeDto {
     private String category;
 
     @NotNull(message = "조리 시간은 필수입니다.")
+    @Min(value = 1, message = "조리 시간은 1분 이상이어야 합니다.")
+    @Max(value = 1440, message = "조리 시간은 1440분(24시간)을 초과할 수 없습니다.")
+    private Integer cookingTime;
+
+    @NotNull(message = "인분은 필수입니다.")
+    @Min(value = 1, message = "인분은 1인분 이상이어야 합니다.")
+    @Max(value = 20, message = "인분은 20인분을 초과할 수 없습니다.")
+    private Integer servings;
+
+    @NotBlank(message = "난이도는 필수입니다.")
+    @Pattern(regexp = "초급|중급|고급", message = "난이도는 초급, 중급, 고급 중 하나여야 합니다.")
+    private String difficulty;
+
+    @Size(max = 500, message = "이미지 URL은 500자를 초과할 수 없습니다.")
+    private String imageUrl;
+
+    @NotEmpty(message = "재료는 최소 1개 이상 입력해주세요.")
+    @Size(min = 1, max = 50, message = "재료는 1개 이상 50개 이하로 입력해주세요.")
+    private List<@NotBlank(message = "재료는 빈 값일 수 없습니다.") @Size(max = 200, message = "재료는 200자를 초과할 수 없습니다.") String> ingredients;
+
+    @NotEmpty(message = "조리 순서는 최소 1단계 이상 입력해주세요.")
+    @Size(min = 1, max = 20, message = "조리 순서는 1단계 이상 20단계 이하로 입력해주세요.")
+    private List<@NotBlank(message = "조리 순서는 빈 값일 수 없습니다.") @Size(max = 1000, message = "조리 순서는 1000자를 초과할 수 없습니다.") String> steps;
+
+    @Size(max = 10, message = "태그는 10개를 초과할 수 없습니다.")
+    private List<@Size(max = 50, message = "태그는 50자를 초과할 수 없습니다.") String> tags;
+}

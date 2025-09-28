@@ -18,6 +18,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -39,26 +40,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .cors().configurationSource(corsConfigurationSource())
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                // 공개 엔드포인트
-                .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/recipes").permitAll()
-                .antMatchers("/api/recipes/{id}").permitAll()
-                .antMatchers("/api/recipes/popular").permitAll()
-                .antMatchers("/api/recipes/recent").permitAll()
-                .antMatchers("/api/recipes/category/**").permitAll()
-                // 인증 필요 엔드포인트
-                .antMatchers("/api/recipes/create").authenticated()
-                .antMatchers("/api/recipes/*/edit").authenticated()
-                .antMatchers("/api/recipes/*/delete").authenticated()
-                .antMatchers("/api/recipes/*/like").authenticated()
-                .anyRequest().authenticated()
-                .and()
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authz -> authz
+                        // 완전히 공개된 엔드포인트
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/recipes", "/api/recipes/**").permitAll()
+                        .requestMatchers("/api/recipes/popular").permitAll()
+                        .requestMatchers("/api/recipes/recent").permitAll()
+                        .requestMatchers("/api/recipes/category/**").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/").permitAll()
+                        // OPTIONS 요청 허용
+                        .requestMatchers("OPTIONS", "/**").permitAll()
+                        // 기타 모든 요청은 인증 필요
+                        .anyRequest().authenticated()
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -67,14 +65,28 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+        // 모든 origin 허용 (개발 환경용)
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000"));
+        
+        // 모든 HTTP 메서드 허용
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+        
+        // 모든 헤더 허용
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        
+        // 자격 증명 허용
         configuration.setAllowCredentials(true);
+        
+        // 최대 캐시 시간
         configuration.setMaxAge(3600L);
+        
+        // Expose headers
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }

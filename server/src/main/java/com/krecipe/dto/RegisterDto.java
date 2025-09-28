@@ -11,9 +11,9 @@ import jakarta.validation.constraints.*;
 @AllArgsConstructor
 public class RegisterDto {
 
-    @NotBlank(message = "사용자명은 필수입니다.")
-    @Size(min = 3, max = 50, message = "사용자명은 3자 이상 50자 이하여야 합니다.")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "사용자명은 영문자, 숫자, 언더스코어만 사용 가능합니다.")
+    @NotBlank(message = "계정명은 필수입니다.")
+    @Size(min = 3, max = 20, message = "계정명은 3자 이상 20자 이하여야 합니다.")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "계정명은 영문자, 숫자, 언더스코어만 사용 가능합니다.")
     private String username;
 
     @NotBlank(message = "이메일은 필수입니다.")

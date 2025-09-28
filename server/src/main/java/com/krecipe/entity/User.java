@@ -1,6 +1,6 @@
 package com.krecipe.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -51,9 +51,11 @@ public class User {
     @JsonIgnore
     private List<Recipe> recipes = new ArrayList<>();
     
-    @ElementCollection
+    // LazyInitializationException 방지를 위해 EAGER로 변경하거나 JsonIgnore 처리
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_favorite_recipes", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "recipe_id")
+    @JsonIgnore  // JSON 직렬화에서 제외
     private List<Long> favoriteRecipeIds = new ArrayList<>();
     
     @Column(nullable = false, updatable = false)

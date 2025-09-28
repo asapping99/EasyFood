@@ -3,6 +3,7 @@ package com.krecipe.controller;
 import com.krecipe.dto.LoginDto;
 import com.krecipe.dto.RegisterDto;
 import com.krecipe.dto.TokenResponse;
+import com.krecipe.dto.UserDto;
 import com.krecipe.entity.User;
 import com.krecipe.service.AuthService;
 import com.krecipe.util.JwtUtil;
@@ -16,15 +17,36 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
 public class AuthController {
     
     private final AuthService authService;
     private final JwtUtil jwtUtil;
     
+    // User를 UserDto로 변환하는 헬퍼 메서드
+    private UserDto convertToDto(User user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .profileImageUrl(user.getProfileImageUrl())
+                .bio(user.getBio())
+                .role(user.getRole())
+                .isActive(user.getIsActive())
+                .createdAt(user.getCreatedAt())
+                .lastLoginAt(user.getLastLoginAt())
+                .build();
+    }
+    
     // 회원가입
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterDto registerDto) {
+        System.out.println("========== 회원가입 요청 수신 ==========");
+        System.out.println("Username: " + registerDto.getUsername());
+        System.out.println("Email: " + registerDto.getEmail());
+        System.out.println("Nickname: " + registerDto.getNickname());
+        
         try {
             // 이메일 중복 확인
             if (authService.existsByEmail(registerDto.getEmail())) {
@@ -35,20 +57,24 @@ public class AuthController {
             // 사용자명 중복 확인
             if (authService.existsByUsername(registerDto.getUsername())) {
                 return ResponseEntity.badRequest()
-                    .body(Map.of("error", "이미 사용중인 사용자명입니다."));
+                    .body(Map.of("error", "이미 사용중인 계정명입니다."));
             }
             
             User user = authService.register(registerDto);
             String token = jwtUtil.generateToken(user.getUsername());
             
+            System.out.println("회원가입 성공: " + user.getUsername());
+            
             return ResponseEntity.status(HttpStatus.CREATED)
                 .body(TokenResponse.builder()
                     .token(token)
                     .type("Bearer")
-                    .user(user)
+                    .user(convertToDto(user))  // DTO로 변환
                     .build());
                     
         } catch (Exception e) {
+            System.err.println("회원가입 오류: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.badRequest()
                 .body(Map.of("error", "회원가입 중 오류가 발생했습니다: " + e.getMessage()));
         }
@@ -57,23 +83,29 @@ public class AuthController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDto loginDto) {
+        System.out.println("========== 로그인 요청 수신 ==========");
+        System.out.println("Username: " + loginDto.getUsername());
+        
         try {
             User user = authService.login(loginDto.getUsername(), loginDto.getPassword());
             
             if (user != null) {
                 String token = jwtUtil.generateToken(user.getUsername());
                 
+                System.out.println("로그인 성공: " + user.getUsername());
+                
                 return ResponseEntity.ok(TokenResponse.builder()
                     .token(token)
                     .type("Bearer")
-                    .user(user)
+                    .user(convertToDto(user))  // DTO로 변환
                     .build());
             }
             
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("error", "아이디 또는 비밀번호가 올바르지 않습니다."));
+                .body(Map.of("error", "계정명 또는 비밀번호가 올바르지 않습니다."));
                 
         } catch (Exception e) {
+            System.err.println("로그인 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("error", "로그인 실패: " + e.getMessage()));
         }
@@ -82,8 +114,6 @@ public class AuthController {
     // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
-        // 클라이언트에서 토큰을 제거하도록 안내
-        // 서버 측에서 토큰 블랙리스트 관리 가능
         return ResponseEntity.ok(Map.of("message", "로그아웃되었습니다."));
     }
     
@@ -98,7 +128,7 @@ public class AuthController {
                 
                 return ResponseEntity.ok(Map.of(
                     "valid", true,
-                    "user", user
+                    "user", convertToDto(user)  // DTO로 변환
                 ));
             }
             
@@ -120,7 +150,7 @@ public class AuthController {
             User user = authService.findByUsername(username);
             
             if (user != null) {
-                return ResponseEntity.ok(user);
+                return ResponseEntity.ok(convertToDto(user));  // DTO로 변환
             }
             
             return ResponseEntity.notFound().build();

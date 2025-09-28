@@ -4,11 +4,10 @@ plugins {
     id 'java'
 }
 
-group = 'com.easyfood'
+group = 'com.krecipe'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '21'
-
-def springBootVersion = '3.1.5'
+sourceCompatibility = '20'
+targetCompatibility = '20'
 
 repositories {
     mavenCentral()
@@ -28,9 +27,25 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+    runtimeOnly 'com.h2database:h2' // 테스트용 H2 데이터베이스
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 test {
     useJUnitPlatform()
+}
+
+// 메인 클래스 명시 (수정된 방식)
+bootRun {
+    mainClass = 'com.krecipe.KRecipeApplication'
+}
+
+jar {
+    enabled = false
+}
+
+bootJar {
+    enabled = true
+    archiveClassifier = ''
+    mainClass = 'com.krecipe.KRecipeApplication'
 }
