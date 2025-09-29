@@ -13,19 +13,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.List;
-
+/**
+ * Spring Security 설정
+ * CORS는 CorsConfig에서 통합 관리
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CorsConfig corsConfig;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -40,11 +39,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // CSRF 비활성화 (REST API이므로)
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                
+                // CORS 설정 적용 (CorsConfig에서 정의한 설정 사용)
+                .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
+                
+                // 세션 사용하지 않음 (JWT 사용)
+                .sessionManagement(session -> 
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                
+                // 요청별 인증 설정
                 .authorizeHttpRequests(authz -> authz
-                        // 완전히 공개된 엔드포인트
+                        // 완전히 공개된 엔드포인트 (인증 불필요)
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/recipes", "/api/recipes/**").permitAll()
                         .requestMatchers("/api/recipes/popular").permitAll()
@@ -52,41 +59,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/recipes/category/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/").permitAll()
-                        // OPTIONS 요청 허용
+                        
+                        // OPTIONS 요청 허용 (CORS Preflight)
                         .requestMatchers("OPTIONS", "/**").permitAll()
+                        
                         // 기타 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
+                
+                // JWT 필터 추가
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        
-        // 모든 origin 허용 (개발 환경용)
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000"));
-        
-        // 모든 HTTP 메서드 허용
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
-        
-        // 모든 헤더 허용
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        
-        // 자격 증명 허용
-        configuration.setAllowCredentials(true);
-        
-        // 최대 캐시 시간
-        configuration.setMaxAge(3600L);
-        
-        // Expose headers
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }

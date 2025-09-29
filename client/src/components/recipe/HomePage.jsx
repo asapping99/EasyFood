@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChefHat, Eye, Heart, Clock, Users, BarChart, Star, TrendingUp, Award, Filter } from 'lucide-react';
+import { ChefHat, Eye, Heart, Clock, Users, BarChart, Star, TrendingUp, Award, Filter, ChevronDown } from 'lucide-react';
 import { CATEGORIES } from '../../utils/api';
 import RecipeCard from '../recipe/RecipeCard';
 
@@ -19,6 +19,11 @@ const HomePage = ({
     totalViews: 0,
     totalCategories: 0
   });
+  const [displayedRecipes, setDisplayedRecipes] = useState([]);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const ITEMS_PER_PAGE = 12;
 
   useEffect(() => {
     if (recipes.length > 0) {
@@ -28,13 +33,40 @@ const HomePage = ({
         totalViews: recipes.reduce((sum, recipe) => sum + (recipe.viewCount || 0), 0),
         totalCategories: CATEGORIES.length - 1 // '전체' 제외
       });
+      
+      // 처음 로드시 첫 페이지만 표시
+      const firstPage = recipes.slice(0, ITEMS_PER_PAGE);
+      setDisplayedRecipes(firstPage);
+      setPage(0);
+      setHasMore(recipes.length > ITEMS_PER_PAGE);
     }
   }, [recipes]);
 
-  const filteredRecipes = recipes.filter(recipe =>
+  const filteredRecipes = displayedRecipes.filter(recipe =>
     recipe.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     recipe.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const loadMoreRecipes = () => {
+    setLoadingMore(true);
+    
+    setTimeout(() => {
+      const nextPage = page + 1;
+      const startIndex = nextPage * ITEMS_PER_PAGE;
+      const endIndex = startIndex + ITEMS_PER_PAGE;
+      const moreRecipes = recipes.slice(startIndex, endIndex);
+      
+      if (moreRecipes.length > 0) {
+        setDisplayedRecipes(prev => [...prev, ...moreRecipes]);
+        setPage(nextPage);
+        setHasMore(endIndex < recipes.length);
+      } else {
+        setHasMore(false);
+      }
+      
+      setLoadingMore(false);
+    }, 500);
+  };
 
   const heroSection = () => (
     <div className="relative overflow-hidden">
@@ -58,10 +90,16 @@ const HomePage = ({
           
           {!user && (
             <div className="space-y-4">
-              <button className="px-8 py-4 btn-primary text-white rounded-2xl font-bold text-lg mr-4">
+              <button 
+                onClick={() => onNavigate('login')}
+                className="px-8 py-4 btn-primary text-white rounded-2xl font-bold text-lg mr-4 hover:shadow-xl transition-all">
                 지금 시작하기
               </button>
-              <button className="px-8 py-4 bg-white/70 backdrop-blur border border-gray-200 text-gray-700 rounded-2xl font-bold text-lg hover:bg-white transition-all">
+              <button 
+                onClick={() => {
+                  window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+                }}
+                className="px-8 py-4 bg-white/70 backdrop-blur border border-gray-200 text-gray-700 rounded-2xl font-bold text-lg hover:bg-white transition-all">
                 인기 레시피 보기
               </button>
             </div>
@@ -86,22 +124,22 @@ const HomePage = ({
     <div className="py-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="glass-morphism rounded-2xl p-6 text-center border border-gray-200">
+          <div className="glass-morphism rounded-2xl p-6 text-center border border-gray-200 hover:shadow-lg transition-shadow">
             <ChefHat className="w-8 h-8 text-orange-500 mx-auto mb-3" />
             <p className="text-2xl md:text-3xl font-bold text-gray-800">{stats.totalRecipes}</p>
             <p className="text-gray-600 text-sm">전체 레시피</p>
           </div>
-          <div className="glass-morphism rounded-2xl p-6 text-center border border-gray-200">
+          <div className="glass-morphism rounded-2xl p-6 text-center border border-gray-200 hover:shadow-lg transition-shadow">
             <Heart className="w-8 h-8 text-red-500 mx-auto mb-3" />
             <p className="text-2xl md:text-3xl font-bold text-gray-800">{stats.totalLikes}</p>
             <p className="text-gray-600 text-sm">총 좋아요</p>
           </div>
-          <div className="glass-morphism rounded-2xl p-6 text-center border border-gray-200">
+          <div className="glass-morphism rounded-2xl p-6 text-center border border-gray-200 hover:shadow-lg transition-shadow">
             <Eye className="w-8 h-8 text-blue-500 mx-auto mb-3" />
             <p className="text-2xl md:text-3xl font-bold text-gray-800">{stats.totalViews}</p>
             <p className="text-gray-600 text-sm">총 조회수</p>
           </div>
-          <div className="glass-morphism rounded-2xl p-6 text-center border border-gray-200">
+          <div className="glass-morphism rounded-2xl p-6 text-center border border-gray-200 hover:shadow-lg transition-shadow">
             <Award className="w-8 h-8 text-yellow-500 mx-auto mb-3" />
             <p className="text-2xl md:text-3xl font-bold text-gray-800">{stats.totalCategories}</p>
             <p className="text-gray-600 text-sm">카테고리</p>
@@ -149,6 +187,11 @@ const HomePage = ({
             <p className="text-gray-600">
               {searchTerm ? `"${searchTerm}" 검색 결과 ` : ''}
               총 <span className="font-semibold text-orange-600">{filteredRecipes.length}</span>개의 레시피
+              {recipes.length > displayedRecipes.length && (
+                <span className="text-gray-400 ml-1">
+                  (전체 {recipes.length}개 중 {displayedRecipes.length}개 표시)
+                </span>
+              )}
             </p>
           </div>
           
@@ -166,15 +209,40 @@ const HomePage = ({
             </div>
           </div>
         ) : filteredRecipes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredRecipes.map(recipe => (
-              <RecipeCard
-                key={recipe.id}
-                recipe={recipe}
-                onClick={() => onRecipeClick(recipe)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredRecipes.map(recipe => (
+                <RecipeCard
+                  key={recipe.id}
+                  recipe={recipe}
+                  onClick={() => onRecipeClick(recipe)}
+                />
+              ))}
+            </div>
+            
+            {/* 더 보기 버튼 */}
+            {hasMore && !searchTerm && (
+              <div className="flex justify-center mt-12">
+                <button
+                  onClick={loadMoreRecipes}
+                  disabled={loadingMore}
+                  className="px-8 py-4 bg-white/70 backdrop-blur border-2 border-orange-300 text-orange-600 rounded-2xl font-bold text-lg hover:bg-orange-50 hover:border-orange-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {loadingMore ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-orange-600"></div>
+                      <span>불러오는 중...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>더 많은 레시피 보기</span>
+                      <ChevronDown className="w-5 h-5" />
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-16">
             <div className="glass-morphism rounded-3xl p-12 max-w-md mx-auto border border-gray-200">

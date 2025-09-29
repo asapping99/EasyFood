@@ -25,7 +25,8 @@ public class CorsFilter implements Filter {
         // 허용할 Origin 목록
         if (origin != null && (origin.equals("http://localhost:3000") || 
                               origin.equals("http://localhost:3001") || 
-                              origin.equals("http://127.0.0.1:3000"))) {
+                              origin.equals("http://127.0.0.1:3000") ||
+                              origin.equals("http://hobbygom.ddns.net:3000"))) {
             response.setHeader("Access-Control-Allow-Origin", origin);
         }
         

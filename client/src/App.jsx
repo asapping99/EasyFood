@@ -8,6 +8,7 @@ import LoginPage from './components/auth/LoginPage';
 import HomePage from './components/recipe/HomePage';
 import RecipeDetail from './components/recipe/RecipeDetail';
 import RecipeForm from './components/recipe/RecipeForm';
+import MyRecipesPage from './components/recipe/MyRecipesPage';
 
 // Utils
 import { apiRequest, tokenManager } from './utils/api';
@@ -68,7 +69,7 @@ const App = () => {
         params.append('category', selectedCategory);
       }
       
-      const response = await fetch(`http://localhost:8080/api/recipes?${params}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/recipes?${params}`);
       if (response.ok) {
         const data = await response.json();
         setRecipes(data.content || data || []);
@@ -211,33 +212,11 @@ const App = () => {
         )}
 
         {currentPage === 'my-recipes' && (
-          <div className="container mx-auto px-4 py-8">
-            <div className="max-w-4xl mx-auto">
-              <h1 className="text-3xl font-bold text-gray-800 mb-8">내 레시피</h1>
-              
-              <div className="text-center py-16">
-                <div className="glass-morphism rounded-3xl p-12 border border-gray-200">
-                  <p className="text-lg text-gray-700 mb-4">📝 아직 등록한 레시피가 없습니다</p>
-                  <p className="text-gray-600 mb-6">첫 번째 레시피를 등록해보세요!</p>
-                  
-                  <div className="space-x-4">
-                    <button
-                      onClick={() => setCurrentPage('create')}
-                      className="px-6 py-3 btn-primary text-white rounded-xl font-semibold"
-                    >
-                      레시피 등록하기
-                    </button>
-                    <button
-                      onClick={() => setCurrentPage('home')}
-                      className="px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
-                    >
-                      홈으로 돌아가기
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <MyRecipesPage
+            user={user}
+            onNavigate={handleNavigate}
+            onRecipeClick={handleRecipeClick}
+          />
         )}
       </main>
 
