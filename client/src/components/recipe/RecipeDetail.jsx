@@ -1,8 +1,15 @@
+/**
+ * RecipeDetail - react-i18next 적용
+ */
+
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Clock, Users, BarChart, BookOpen, Heart, Edit, Trash2, Eye, Share2, Star } from 'lucide-react';
-import { apiRequest, formatDate } from '../../utils/api';
+import { getRecipeById, deleteRecipe, likeRecipe } from '../../api';
+import { formatDate } from '../../utils/api';
 
 const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
+  const { t } = useTranslation(['recipe', 'common']);
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
@@ -13,34 +20,34 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
 
   const fetchRecipe = async () => {
     try {
-      const data = await apiRequest(`/recipes/${recipeId}`);
+      const data = await getRecipeById(recipeId);
       setRecipe(data);
     } catch (error) {
-      console.error('레시피 로드 실패:', error);
+      console.error(t('messages.loadFailed'), error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('정말로 이 레시피를 삭제하시겠습니까?')) return;
+    if (!window.confirm(t('detail.deleteConfirm'))) return;
     
     try {
-      await apiRequest(`/recipes/${recipeId}`, { method: 'DELETE' });
-      alert('레시피가 삭제되었습니다.');
+      await deleteRecipe(recipeId);
+      alert(t('detail.deleteSuccess'));
       setCurrentPage('home');
     } catch (error) {
-      alert('삭제 실패: ' + error.message);
+      alert(t('detail.deleteFailed') + ': ' + error.message);
     }
   };
 
   const handleLike = async () => {
     try {
-      const data = await apiRequest(`/recipes/${recipeId}/like`, { method: 'POST' });
+      const data = await likeRecipe(recipeId);
       setRecipe(prev => ({ ...prev, likeCount: data.likeCount }));
       setLiked(!liked);
     } catch (error) {
-      alert('로그인이 필요합니다.');
+      alert(t('detail.loginRequired'));
     }
   };
 
@@ -56,9 +63,8 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
         console.log('공유 취소');
       }
     } else {
-      // 폴백: 클립보드에 복사
       navigator.clipboard.writeText(window.location.href);
-      alert('링크가 클립보드에 복사되었습니다!');
+      alert(t('detail.shareMessage'));
     }
   };
 
@@ -67,7 +73,7 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
       <div className="min-h-screen gradient-bg flex justify-center items-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">레시피를 불러오고 있어요...</p>
+          <p className="text-gray-600">{t('recipe.loadingRecipes')}</p>
         </div>
       </div>
     );
@@ -77,12 +83,12 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
     return (
       <div className="min-h-screen gradient-bg flex justify-center items-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">레시피를 찾을 수 없습니다</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('detail.notFound')}</h2>
           <button
             onClick={() => setCurrentPage('home')}
             className="px-6 py-3 btn-primary text-white rounded-xl font-semibold"
           >
-            홈으로 돌아가기
+            {t('common:backToHome')}
           </button>
         </div>
       </div>
@@ -98,7 +104,7 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
           className="flex items-center gap-2 mb-6 text-gray-600 hover:text-orange-500 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          목록으로 돌아가기
+          {t('common:backToList')}
         </button>
 
         <div className="max-w-4xl mx-auto">
@@ -163,7 +169,7 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
                     }`}
                   >
                     <Heart className="w-4 h-4" />
-                    좋아요 ({recipe.likeCount || 0})
+                    {t('detail.likeCount', { count: recipe.likeCount || 0 })}
                   </button>
 
                   <button
@@ -171,7 +177,7 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
                     className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-blue-50 hover:border-blue-200 transition-all"
                   >
                     <Share2 className="w-4 h-4" />
-                    공유하기
+                    {t('detail.shareButton')}
                   </button>
 
                   {user && user.id === recipe.author?.id && (
@@ -181,14 +187,14 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
                         className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 transition-all"
                       >
                         <Edit className="w-4 h-4" />
-                        수정
+                        {t('detail.editButton')}
                       </button>
                       <button
                         onClick={handleDelete}
                         className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-all"
                       >
                         <Trash2 className="w-4 h-4" />
-                        삭제
+                        {t('detail.deleteButton')}
                       </button>
                     </>
                   )}
@@ -201,22 +207,22 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div className="glass-morphism rounded-xl p-4 text-center border border-gray-200">
               <Clock className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-600">조리시간</p>
-              <p className="font-bold text-lg">{recipe.cookingTime}분</p>
+              <p className="text-sm text-gray-600">{t('detail.cookingTime')}</p>
+              <p className="font-bold text-lg">{recipe.cookingTime}{t('common:unit.minute')}</p>
             </div>
             <div className="glass-morphism rounded-xl p-4 text-center border border-gray-200">
               <Users className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-600">인분</p>
-              <p className="font-bold text-lg">{recipe.servings}인분</p>
+              <p className="text-sm text-gray-600">{t('detail.servings')}</p>
+              <p className="font-bold text-lg">{recipe.servings}{t('common:unit.serving')}</p>
             </div>
             <div className="glass-morphism rounded-xl p-4 text-center border border-gray-200">
               <BarChart className="w-6 h-6 text-green-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-600">난이도</p>
+              <p className="text-sm text-gray-600">{t('detail.difficulty')}</p>
               <p className="font-bold text-lg">{recipe.difficulty}</p>
             </div>
             <div className="glass-morphism rounded-xl p-4 text-center border border-gray-200">
               <Eye className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-600">조회수</p>
+              <p className="text-sm text-gray-600">{t('detail.viewCount')}</p>
               <p className="font-bold text-lg">{recipe.viewCount || 0}</p>
             </div>
           </div>
@@ -225,7 +231,7 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
           <div className="glass-morphism rounded-3xl shadow-xl p-8 mb-8 border border-gray-200">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               <BookOpen className="w-6 h-6 text-orange-500" />
-              필요한 재료
+              {t('detail.ingredients')}
             </h2>
             <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -243,7 +249,7 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
           <div className="glass-morphism rounded-3xl shadow-xl p-8 mb-8 border border-gray-200">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               <Star className="w-6 h-6 text-orange-500" />
-              조리 순서
+              {t('detail.steps')}
             </h2>
             <div className="space-y-4">
               {recipe.steps?.map((step, index) => (
@@ -262,7 +268,7 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
           {/* 태그 */}
           {recipe.tags && recipe.tags.length > 0 && (
             <div className="glass-morphism rounded-3xl shadow-xl p-8 border border-gray-200">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">관련 태그</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">{t('form.relatedTags')}</h3>
               <div className="flex flex-wrap gap-2">
                 {recipe.tags.map((tag, index) => (
                   <span 

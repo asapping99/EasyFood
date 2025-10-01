@@ -12,6 +12,7 @@ import MyRecipesPage from './components/recipe/MyRecipesPage';
 
 // Utils
 import { apiRequest, tokenManager } from './utils/api';
+import './utils/i18n';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -19,16 +20,13 @@ const App = () => {
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('전체');
 
-  // 페이지 로드 시 인증 확인 및 레시피 로드
+  // 페이지 로드 시 인증 확인
   useEffect(() => {
     checkAuth();
-    fetchRecipes();
-  }, [selectedCategory]);
+  }, []);
 
   // 다크모드 초기화
   useEffect(() => {
@@ -57,31 +55,6 @@ const App = () => {
         console.error('인증 확인 실패:', error);
         tokenManager.removeToken();
       }
-    }
-  };
-
-  // 레시피 목록 로드
-  const fetchRecipes = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (selectedCategory && selectedCategory !== '전체') {
-        params.append('category', selectedCategory);
-      }
-      
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/recipes?${params}`);
-      if (response.ok) {
-        const data = await response.json();
-        setRecipes(data.content || data || []);
-      } else {
-        console.error('레시피 로드 실패');
-        setRecipes([]);
-      }
-    } catch (error) {
-      console.error('레시피 로드 오류:', error);
-      setRecipes([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -135,14 +108,12 @@ const App = () => {
       <main className="min-h-screen">
         {currentPage === 'home' && (
           <HomePage
-            recipes={recipes}
-            loading={loading}
-            searchTerm={searchTerm}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
             onRecipeClick={handleRecipeClick}
             onNavigate={handleNavigate}
             user={user}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            searchTerm={searchTerm}
           />
         )}
 

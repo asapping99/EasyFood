@@ -1,8 +1,16 @@
+/**
+ * LoginPage - react-i18next 버전
+ * 새로운 API 구조 + react-i18next 다국어 지원
+ */
+
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChefHat, Eye, EyeOff, Mail, User, Lock } from 'lucide-react';
-import { apiRequest, tokenManager } from '../../utils/api';
+import { login, register } from '../../api';
 
 const LoginPage = ({ setUser, setCurrentPage }) => {
+  const { t } = useTranslation(['auth', 'common', 'recipe']);
+  
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -20,23 +28,20 @@ const LoginPage = ({ setUser, setCurrentPage }) => {
     setLoading(true);
     
     try {
-      const endpoint = isLogin ? '/auth/login' : '/auth/register';
-      const data = isLogin 
+      const credentials = isLogin 
         ? { username: formData.username, password: formData.password }
         : formData;
       
-      const response = await apiRequest(endpoint, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      const response = isLogin 
+        ? await login(credentials)
+        : await register(credentials);
       
-      if (response.token) {
-        tokenManager.setToken(response.token);
+      if (response.user) {
         setUser(response.user);
         setCurrentPage('home');
       }
     } catch (err) {
-      setError(err.message || '오류가 발생했습니다.');
+      setError(err.message || t('common:unknownError'));
     } finally {
       setLoading(false);
     }
@@ -44,7 +49,7 @@ const LoginPage = ({ setUser, setCurrentPage }) => {
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    if (error) setError(''); // 입력 시 에러 메시지 제거
+    if (error) setError('');
   };
 
   return (
@@ -57,12 +62,12 @@ const LoginPage = ({ setUser, setCurrentPage }) => {
               <ChefHat className="w-12 h-12 text-orange-500 mr-3" />
             </div>
             <h1 className="text-3xl font-bold text-gradient">
-              K-Recipe
+              {t('common:appName')}
             </h1>
           </div>
           
           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-            {isLogin ? '다시 오신 것을 환영합니다!' : '새로운 요리 여행을 시작하세요!'}
+            {isLogin ? t('login.welcomeBack') : t('register.welcomeNew')}
           </h2>
           
           {error && (
@@ -80,7 +85,7 @@ const LoginPage = ({ setUser, setCurrentPage }) => {
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="계정명 (영문, 숫자, _ 만 가능)"
+                placeholder={isLogin ? t('login.usernamePlaceholder') : t('register.usernamePlaceholder')}
                 value={formData.username}
                 onChange={(e) => handleInputChange('username', e.target.value)}
                 className="w-full pl-11 pr-4 py-4 bg-white/70 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
@@ -96,7 +101,7 @@ const LoginPage = ({ setUser, setCurrentPage }) => {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="email"
-                    placeholder="이메일"
+                    placeholder={t('register.emailPlaceholder')}
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     className="w-full pl-11 pr-4 py-4 bg-white/70 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
@@ -108,7 +113,7 @@ const LoginPage = ({ setUser, setCurrentPage }) => {
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="text"
-                    placeholder="닉네임"
+                    placeholder={t('register.nicknamePlaceholder')}
                     value={formData.nickname}
                     onChange={(e) => handleInputChange('nickname', e.target.value)}
                     className="w-full pl-11 pr-4 py-4 bg-white/70 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
@@ -124,7 +129,7 @@ const LoginPage = ({ setUser, setCurrentPage }) => {
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="비밀번호 (6자 이상, 영문+숫자)"
+                placeholder={isLogin ? t('login.passwordPlaceholder') : t('register.passwordPlaceholder')}
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
                 className="w-full pl-11 pr-12 py-4 bg-white/70 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
@@ -149,10 +154,10 @@ const LoginPage = ({ setUser, setCurrentPage }) => {
               {loading ? (
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  처리중...
+                  {t('login.processing')}
                 </div>
               ) : (
-                isLogin ? '로그인' : '회원가입'
+                isLogin ? t('login.loginButton') : t('register.registerButton')
               )}
             </button>
           </form>
@@ -166,13 +171,13 @@ const LoginPage = ({ setUser, setCurrentPage }) => {
             >
               {isLogin ? (
                 <>
-                  아직 계정이 없으신가요?{' '}
-                  <span className="text-orange-500 font-semibold">회원가입</span>
+                  {t('login.noAccount')}{' '}
+                  <span className="text-orange-500 font-semibold">{t('login.goToRegister')}</span>
                 </>
               ) : (
                 <>
-                  이미 계정이 있으신가요?{' '}
-                  <span className="text-orange-500 font-semibold">로그인</span>
+                  {t('register.hasAccount')}{' '}
+                  <span className="text-orange-500 font-semibold">{t('register.goToLogin')}</span>
                 </>
               )}
             </button>
@@ -182,7 +187,7 @@ const LoginPage = ({ setUser, setCurrentPage }) => {
         {/* 하단 설명 */}
         <div className="mt-6 text-center">
           <p className="text-gray-600 text-sm">
-            🍳 맛있는 한국 요리 레시피를 발견하고 공유하세요
+            🍳 {t('recipe:hero.mainDescription')}
           </p>
         </div>
       </div>

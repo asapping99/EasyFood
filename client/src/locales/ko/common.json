@@ -1,0 +1,62 @@
+{
+  "appName": "K-Recipe",
+  "welcome": "환영합니다",
+  "loading": "로딩 중...",
+  "loadingData": "데이터를 불러오고 있어요...",
+  "loadingRecipes": "레시피를 불러오고 있어요...",
+  "loadingMore": "더 많은 레시피를 불러오고 있어요...",
+  "error": "오류",
+  "success": "성공",
+  "confirm": "확인",
+  "cancel": "취소",
+  "save": "저장",
+  "delete": "삭제",
+  "edit": "수정",
+  "create": "생성",
+  "search": "검색",
+  "filter": "필터",
+  "reset": "초기화",
+  "back": "뒤로",
+  "backToList": "목록으로 돌아가기",
+  "backToHome": "홈으로 돌아가기",
+  "next": "다음",
+  "previous": "이전",
+  "close": "닫기",
+  "submit": "제출",
+  "retry": "재시도",
+  "viewMore": "더보기",
+  "noData": "데이터가 없습니다",
+  "networkError": "네트워크 오류가 발생했습니다",
+  "timeoutError": "요청 시간이 초과되었습니다",
+  "unknownError": "알 수 없는 오류가 발생했습니다",
+  "add": "추가",
+  "remove": "제거",
+  "share": "공유하기",
+  "copied": "클립보드에 복사되었습니다!",
+  "category": {
+    "all": "전체",
+    "korean": "한식",
+    "chinese": "중식",
+    "japanese": "일식",
+    "western": "양식",
+    "dessert": "디저트",
+    "beverage": "음료"
+  },
+  "difficulty": {
+    "all": "전체",
+    "easy": "초급",
+    "medium": "중급",
+    "hard": "고급"
+  },
+  "sort": {
+    "recent": "최신순",
+    "popular": "인기순",
+    "likes": "좋아요순",
+    "views": "조회순"
+  },
+  "unit": {
+    "minute": "분",
+    "serving": "인분",
+    "people": "명"
+  }
+}

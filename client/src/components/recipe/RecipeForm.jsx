@@ -1,15 +1,23 @@
+/**
+ * RecipeForm - react-i18next 적용
+ */
+
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Plus, X, Upload, Clock, Users, BarChart, Tag, ChefHat, Save, Eye } from 'lucide-react';
-import { apiRequest, CATEGORIES, DIFFICULTIES } from '../../utils/api';
+import { getRecipeById, createRecipe, updateRecipe } from '../../api';
+import { CATEGORIES, DIFFICULTIES } from '../../utils/constants';
 
 const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
+  const { t } = useTranslation(['recipe', 'common', 'validation']);
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: '한식',
+    category: CATEGORIES[1] || '한식',
     cookingTime: 30,
     servings: 2,
-    difficulty: '중급',
+    difficulty: DIFFICULTIES[1] || '중급',
     imageUrl: '',
     ingredients: [''],
     steps: [''],
@@ -22,7 +30,6 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
   const [currentTag, setCurrentTag] = useState('');
   const [previewMode, setPreviewMode] = useState(false);
 
-  // 수정 모드일 때 기존 레시피 데이터 로드
   useEffect(() => {
     if (recipeId) {
       loadRecipeData();
@@ -32,56 +39,54 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
   const loadRecipeData = async () => {
     setLoadingRecipe(true);
     try {
-      const recipe = await apiRequest(`/recipes/${recipeId}`);
+      const recipe = await getRecipeById(recipeId);
       setFormData({
         title: recipe.title || '',
         description: recipe.description || '',
-        category: recipe.category || '한식',
+        category: recipe.category || CATEGORIES[1],
         cookingTime: recipe.cookingTime || 30,
         servings: recipe.servings || 2,
-        difficulty: recipe.difficulty || '중급',
+        difficulty: recipe.difficulty || DIFFICULTIES[1],
         imageUrl: recipe.imageUrl || '',
         ingredients: recipe.ingredients && recipe.ingredients.length > 0 ? recipe.ingredients : [''],
         steps: recipe.steps && recipe.steps.length > 0 ? recipe.steps : [''],
         tags: recipe.tags || []
       });
     } catch (error) {
-      alert('레시피 데이터를 불러오는데 실패했습니다: ' + error.message);
+      alert(t('messages.loadDataFailed') + ': ' + error.message);
       setCurrentPage('home');
     } finally {
       setLoadingRecipe(false);
     }
   };
 
-  // 폼 유효성 검사
   const validateForm = () => {
     const newErrors = {};
     
     if (!formData.title.trim()) {
-      newErrors.title = '레시피 제목을 입력해주세요.';
+      newErrors.title = t('form.titleRequired');
     }
     
     if (formData.ingredients.filter(ing => ing.trim()).length === 0) {
-      newErrors.ingredients = '최소 1개 이상의 재료를 입력해주세요.';
+      newErrors.ingredients = t('form.ingredientsRequired');
     }
     
     if (formData.steps.filter(step => step.trim()).length === 0) {
-      newErrors.steps = '최소 1개 이상의 조리 단계를 입력해주세요.';
+      newErrors.steps = t('form.stepsRequired');
     }
     
     if (formData.cookingTime < 1 || formData.cookingTime > 1440) {
-      newErrors.cookingTime = '조리 시간은 1분에서 1440분 사이여야 합니다.';
+      newErrors.cookingTime = t('form.cookingTimeRange');
     }
     
     if (formData.servings < 1 || formData.servings > 20) {
-      newErrors.servings = '인분은 1인분에서 20인분 사이여야 합니다.';
+      newErrors.servings = t('form.servingsRange');
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // 폼 제출
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -99,24 +104,22 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
         tags: formData.tags.filter(t => t.trim())
       };
 
-      const endpoint = recipeId ? `/recipes/${recipeId}` : '/recipes';
-      const method = recipeId ? 'PUT' : 'POST';
-
-      await apiRequest(endpoint, {
-        method,
-        body: JSON.stringify(cleanedData)
-      });
-
-      alert(recipeId ? '레시피가 수정되었습니다!' : '레시피가 등록되었습니다!');
+      if (recipeId) {
+        await updateRecipe(recipeId, cleanedData);
+        alert(t('messages.updateSuccess'));
+      } else {
+        await createRecipe(cleanedData);
+        alert(t('messages.createSuccess'));
+      }
+      
       setCurrentPage('home');
     } catch (error) {
-      alert('저장 실패: ' + error.message);
+      alert(t('messages.saveFailed') + ': ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // 재료 관리
   const addIngredient = () => {
     setFormData(prev => ({
       ...prev,
@@ -139,7 +142,6 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
     }
   };
 
-  // 조리 단계 관리
   const addStep = () => {
     setFormData(prev => ({
       ...prev,
@@ -162,7 +164,6 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
     }
   };
 
-  // 태그 관리
   const addTag = () => {
     if (currentTag.trim() && !formData.tags.includes(currentTag.trim())) {
       setFormData(prev => ({
@@ -180,7 +181,6 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
     }));
   };
 
-  // 미리보기 모드
   const PreviewComponent = () => (
     <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-200">
       <div className="mb-6">
@@ -192,31 +192,31 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
             {formData.difficulty}
           </span>
         </div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">{formData.title || '레시피 제목'}</h1>
-        <p className="text-gray-600">{formData.description || '레시피 설명'}</p>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">{formData.title || t('form.title')}</h1>
+        <p className="text-gray-600">{formData.description || t('form.description')}</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
         <div className="bg-orange-50 rounded-xl p-4 text-center">
           <Clock className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-600">조리시간</p>
-          <p className="font-bold">{formData.cookingTime}분</p>
+          <p className="text-sm text-gray-600">{t('detail.cookingTime')}</p>
+          <p className="font-bold">{formData.cookingTime}{t('common:unit.minute')}</p>
         </div>
         <div className="bg-blue-50 rounded-xl p-4 text-center">
           <Users className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-600">인분</p>
-          <p className="font-bold">{formData.servings}인분</p>
+          <p className="text-sm text-gray-600">{t('detail.servings')}</p>
+          <p className="font-bold">{formData.servings}{t('common:unit.serving')}</p>
         </div>
         <div className="bg-green-50 rounded-xl p-4 text-center">
           <BarChart className="w-6 h-6 text-green-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-600">난이도</p>
+          <p className="text-sm text-gray-600">{t('detail.difficulty')}</p>
           <p className="font-bold">{formData.difficulty}</p>
         </div>
       </div>
 
       {formData.ingredients.filter(ing => ing.trim()).length > 0 && (
         <div className="mb-8">
-          <h2 className="text-xl font-bold mb-4">재료</h2>
+          <h2 className="text-xl font-bold mb-4">{t('detail.ingredients')}</h2>
           <div className="bg-gray-50 rounded-xl p-4">
             <div className="grid grid-cols-2 gap-2">
               {formData.ingredients.filter(ing => ing.trim()).map((ingredient, index) => (
@@ -232,7 +232,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
 
       {formData.steps.filter(step => step.trim()).length > 0 && (
         <div className="mb-8">
-          <h2 className="text-xl font-bold mb-4">조리 순서</h2>
+          <h2 className="text-xl font-bold mb-4">{t('detail.steps')}</h2>
           <div className="space-y-3">
             {formData.steps.filter(step => step.trim()).map((step, index) => (
               <div key={index} className="flex gap-4">
@@ -248,7 +248,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
 
       {formData.tags.length > 0 && (
         <div>
-          <h3 className="text-lg font-bold mb-3">태그</h3>
+          <h3 className="text-lg font-bold mb-3">{t('form.relatedTags')}</h3>
           <div className="flex flex-wrap gap-2">
             {formData.tags.map((tag, index) => (
               <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
@@ -268,7 +268,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mx-auto mb-4"></div>
-              <p className="text-gray-600">레시피 데이터를 불러오고 있어요...</p>
+              <p className="text-gray-600">{t('common:loadingData')}</p>
             </div>
           </div>
         </div>
@@ -280,7 +280,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
             className="flex items-center gap-2 text-gray-600 hover:text-orange-500 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            홈으로 돌아가기
+            {t('common:backToHome')}
           </button>
 
           <div className="flex items-center gap-3">
@@ -294,7 +294,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
               }`}
             >
               <Eye className="w-4 h-4" />
-              {previewMode ? '편집 모드' : '미리보기'}
+              {previewMode ? t('form.editMode') : t('form.previewMode')}
             </button>
           </div>
         </div>
@@ -307,7 +307,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
               <div className="flex items-center gap-3 mb-8">
                 <ChefHat className="w-8 h-8 text-orange-500" />
                 <h1 className="text-3xl font-bold text-gray-800">
-                  {recipeId ? '레시피 수정' : '새 레시피 등록'}
+                  {recipeId ? t('recipe.editRecipe') : t('recipe.createRecipe')}
                 </h1>
               </div>
 
@@ -318,7 +318,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                     {/* 레시피 제목 */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        레시피 제목 *
+                        {t('form.title')} *
                       </label>
                       <input
                         type="text"
@@ -327,7 +327,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                         className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all ${
                           errors.title ? 'border-red-300' : 'border-gray-200'
                         }`}
-                        placeholder="예: 김치찌개"
+                        placeholder={t('form.titlePlaceholder')}
                         required
                       />
                       {errors.title && (
@@ -338,21 +338,21 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                     {/* 설명 */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        레시피 설명
+                        {t('form.description')}
                       </label>
                       <textarea
                         value={formData.description}
                         onChange={(e) => setFormData({...formData, description: e.target.value})}
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
                         rows="4"
-                        placeholder="이 레시피에 대한 간단한 설명을 적어주세요"
+                        placeholder={t('form.descriptionPlaceholder')}
                       />
                     </div>
 
                     {/* 이미지 URL */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        이미지 URL
+                        {t('form.imageUrl')}
                       </label>
                       <div className="flex gap-2">
                         <input
@@ -360,7 +360,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                           value={formData.imageUrl}
                           onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
                           className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
-                          placeholder="https://example.com/image.jpg"
+                          placeholder={t('form.imageUrlPlaceholder')}
                         />
                         <button
                           type="button"
@@ -373,7 +373,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                         <div className="mt-3">
                           <img 
                             src={formData.imageUrl} 
-                            alt="미리보기" 
+                            alt={t('form.preview')}
                             className="w-full h-32 object-cover rounded-lg"
                             onError={(e) => {
                               e.target.style.display = 'none';
@@ -388,7 +388,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                     {/* 카테고리 */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        카테고리 *
+                        {t('form.category')} *
                       </label>
                       <select
                         value={formData.category}
@@ -405,7 +405,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                     {/* 난이도 */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        난이도 *
+                        {t('form.difficulty')} *
                       </label>
                       <select
                         value={formData.difficulty}
@@ -423,7 +423,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          조리시간 (분) *
+                          {t('form.cookingTimeMinutes')} *
                         </label>
                         <input
                           type="number"
@@ -443,7 +443,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          인분 *
+                          {t('form.servings')} *
                         </label>
                         <input
                           type="number"
@@ -467,14 +467,14 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                 {/* 재료 */}
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <label className="text-lg font-semibold text-gray-700">재료 *</label>
+                    <label className="text-lg font-semibold text-gray-700">{t('form.ingredients')} *</label>
                     <button
                       type="button"
                       onClick={addIngredient}
                       className="flex items-center gap-2 px-3 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors"
                     >
                       <Plus className="w-4 h-4" />
-                      재료 추가
+                      {t('form.addIngredient')}
                     </button>
                   </div>
 
@@ -489,7 +489,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                           value={ingredient}
                           onChange={(e) => updateIngredient(index, e.target.value)}
                           className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
-                          placeholder="예: 돼지고기 300g"
+                          placeholder={t('form.ingredientPlaceholder')}
                         />
                         {formData.ingredients.length > 1 && (
                           <button
@@ -512,14 +512,14 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                 {/* 조리 순서 */}
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <label className="text-lg font-semibold text-gray-700">조리 순서 *</label>
+                    <label className="text-lg font-semibold text-gray-700">{t('form.steps')} *</label>
                     <button
                       type="button"
                       onClick={addStep}
                       className="flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
                     >
                       <Plus className="w-4 h-4" />
-                      단계 추가
+                      {t('form.addStep')}
                     </button>
                   </div>
 
@@ -534,7 +534,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                           onChange={(e) => updateStep(index, e.target.value)}
                           className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
                           rows="2"
-                          placeholder="조리 과정을 자세히 설명해주세요"
+                          placeholder={t('form.stepPlaceholder')}
                         />
                         {formData.steps.length > 1 && (
                           <button
@@ -557,7 +557,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                 {/* 태그 */}
                 <div>
                   <label className="block text-lg font-semibold text-gray-700 mb-4">
-                    태그 (선택사항)
+                    {t('form.tagsOptional')}
                   </label>
                   
                   <div className="flex gap-2 mb-3">
@@ -572,7 +572,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                         }
                       }}
                       className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
-                      placeholder="태그를 입력하고 엔터 또는 추가 버튼을 눌러주세요"
+                      placeholder={t('form.tagPlaceholder')}
                     />
                     <button
                       type="button"
@@ -581,7 +581,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                       className="px-4 py-3 bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       <Tag className="w-4 h-4" />
-                      추가
+                      {t('common:add')}
                     </button>
                   </div>
 
@@ -613,7 +613,7 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                     onClick={() => setCurrentPage('home')}
                     className="px-8 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors"
                   >
-                    취소
+                    {t('common:cancel')}
                   </button>
                   <button
                     type="submit"
@@ -623,12 +623,12 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                     {loading ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        저장 중...
+                        {t('form.saving')}
                       </>
                     ) : (
                       <>
                         <Save className="w-5 h-5" />
-                        {recipeId ? '수정하기' : '등록하기'}
+                        {recipeId ? t('form.updateButton') : t('form.submitButton')}
                       </>
                     )}
                   </button>

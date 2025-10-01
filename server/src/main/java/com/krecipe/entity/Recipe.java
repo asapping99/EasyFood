@@ -1,10 +1,12 @@
 package com.krecipe.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.ToString;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = {"author"})
 public class Recipe {
     
     @Id
@@ -45,26 +48,31 @@ public class Recipe {
     @ElementCollection
     @CollectionTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id"))
     @Column(name = "ingredient")
+    @Builder.Default
     private List<String> ingredients = new ArrayList<>();
     
     @ElementCollection
     @CollectionTable(name = "recipe_steps", joinColumns = @JoinColumn(name = "recipe_id"))
     @Column(name = "step", columnDefinition = "TEXT")
+    @Builder.Default
     private List<String> steps = new ArrayList<>();
     
     @ElementCollection
     @CollectionTable(name = "recipe_tags", joinColumns = @JoinColumn(name = "recipe_id"))
     @Column(name = "tag")
+    @Builder.Default
     private List<String> tags = new ArrayList<>();
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User author;
     
     @Column(nullable = false)
+    @Builder.Default
     private Integer viewCount = 0;
     
     @Column(nullable = false)
+    @Builder.Default
     private Integer likeCount = 0;
     
     @Column(nullable = false, updatable = false)

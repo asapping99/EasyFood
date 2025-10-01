@@ -1,6 +1,7 @@
 package com.krecipe.controller;
 
 import com.krecipe.dto.RecipeDto;
+import com.krecipe.dto.RecipeResponseDto;
 import com.krecipe.entity.Recipe;
 import com.krecipe.service.RecipeService;
 import lombok.RequiredArgsConstructor;
@@ -21,38 +22,44 @@ public class RecipeController {
     
     // 레시피 목록 조회 (페이징, 검색, 필터링)
     @GetMapping
-    public ResponseEntity<Page<Recipe>> getRecipes(
+    public ResponseEntity<Page<RecipeResponseDto>> getRecipes(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String difficulty,
             @RequestParam(required = false) String sortBy,
             Pageable pageable) {
         
-        Page<Recipe> recipes = recipeService.getRecipes(search, category, difficulty, sortBy, pageable);
-        return ResponseEntity.ok(recipes);
+        try {
+            Page<Recipe> recipes = recipeService.getRecipes(search, category, difficulty, sortBy, pageable);
+            Page<RecipeResponseDto> responseDtos = recipes.map(RecipeResponseDto::fromEntity);
+            return ResponseEntity.ok(responseDtos);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
     
     // 레시피 상세 조회
     @GetMapping("/{id}")
-    public ResponseEntity<Recipe> getRecipe(@PathVariable Long id) {
+    public ResponseEntity<RecipeResponseDto> getRecipe(@PathVariable Long id) {
         Recipe recipe = recipeService.getRecipeById(id);
         if (recipe != null) {
             // 조회수 증가
             recipeService.incrementViewCount(id);
-            return ResponseEntity.ok(recipe);
+            return ResponseEntity.ok(RecipeResponseDto.fromEntity(recipe));
         }
         return ResponseEntity.notFound().build();
     }
     
     // 레시피 등록
     @PostMapping
-    public ResponseEntity<Recipe> createRecipe(
+    public ResponseEntity<RecipeResponseDto> createRecipe(
             @Valid @RequestBody RecipeDto recipeDto,
             @RequestHeader("Authorization") String token) {
         
         try {
             Recipe recipe = recipeService.createRecipe(recipeDto, token);
-            return ResponseEntity.status(HttpStatus.CREATED).body(recipe);
+            return ResponseEntity.status(HttpStatus.CREATED).body(RecipeResponseDto.fromEntity(recipe));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -60,7 +67,7 @@ public class RecipeController {
     
     // 레시피 수정
     @PutMapping("/{id}")
-    public ResponseEntity<Recipe> updateRecipe(
+    public ResponseEntity<RecipeResponseDto> updateRecipe(
             @PathVariable Long id,
             @Valid @RequestBody RecipeDto recipeDto,
             @RequestHeader("Authorization") String token) {
@@ -68,7 +75,7 @@ public class RecipeController {
         try {
             Recipe recipe = recipeService.updateRecipe(id, recipeDto, token);
             if (recipe != null) {
-                return ResponseEntity.ok(recipe);
+                return ResponseEntity.ok(RecipeResponseDto.fromEntity(recipe));
             }
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
@@ -112,33 +119,51 @@ public class RecipeController {
     
     // 인기 레시피 조회
     @GetMapping("/popular")
-    public ResponseEntity<Page<Recipe>> getPopularRecipes(Pageable pageable) {
+    public ResponseEntity<Page<RecipeResponseDto>> getPopularRecipes(Pageable pageable) {
         Page<Recipe> recipes = recipeService.getPopularRecipes(pageable);
-        return ResponseEntity.ok(recipes);
+        Page<RecipeResponseDto> responseDtos = recipes.map(RecipeResponseDto::fromEntity);
+        return ResponseEntity.ok(responseDtos);
     }
     
     // 최신 레시피 조회
     @GetMapping("/recent")
-    public ResponseEntity<Page<Recipe>> getRecentRecipes(Pageable pageable) {
+    public ResponseEntity<Page<RecipeResponseDto>> getRecentRecipes(Pageable pageable) {
         Page<Recipe> recipes = recipeService.getRecentRecipes(pageable);
-        return ResponseEntity.ok(recipes);
+        Page<RecipeResponseDto> responseDtos = recipes.map(RecipeResponseDto::fromEntity);
+        return ResponseEntity.ok(responseDtos);
     }
     
     // 카테고리별 레시피 조회
     @GetMapping("/category/{category}")
-    public ResponseEntity<Page<Recipe>> getRecipesByCategory(
+    public ResponseEntity<Page<RecipeResponseDto>> getRecipesByCategory(
             @PathVariable String category,
             Pageable pageable) {
         Page<Recipe> recipes = recipeService.getRecipesByCategory(category, pageable);
-        return ResponseEntity.ok(recipes);
+        Page<RecipeResponseDto> responseDtos = recipes.map(RecipeResponseDto::fromEntity);
+        return ResponseEntity.ok(responseDtos);
     }
     
     // 사용자의 레시피 조회
     @GetMapping("/user/{userId}")
-    public ResponseEntity<Page<Recipe>> getUserRecipes(
+    public ResponseEntity<Page<RecipeResponseDto>> getUserRecipes(
             @PathVariable Long userId,
             Pageable pageable) {
-        Page<Recipe> recipes = recipeService.getUserRecipes(userId, pageable);
-        return ResponseEntity.ok(recipes);
+        try {
+            System.out.println("=== getUserRecipes 호출 ===");
+            System.out.println("userId: " + userId);
+            System.out.println("pageable: " + pageable);
+            
+            Page<Recipe> recipes = recipeService.getUserRecipes(userId, pageable);
+            System.out.println("조회된 레시피 수: " + recipes.getTotalElements());
+            
+            Page<RecipeResponseDto> responseDtos = recipes.map(RecipeResponseDto::fromEntity);
+            System.out.println("DTO 변환 완료");
+            
+            return ResponseEntity.ok(responseDtos);
+        } catch (Exception e) {
+            System.err.println("사용자 레시피 조회 중 에러 발생:");
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

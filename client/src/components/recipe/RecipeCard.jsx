@@ -1,14 +1,24 @@
+/**
+ * RecipeCard - react-i18next 적용
+ */
+
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Clock, Users, Eye, Heart, Star, ChefHat } from 'lucide-react';
 
 const RecipeCard = ({ recipe, onClick }) => {
+  const { t } = useTranslation(['recipe', 'common']);
+  
   const getDifficultyColor = (difficulty) => {
-    switch (difficulty) {
-      case '초급': return 'text-green-600 bg-green-50';
-      case '중급': return 'text-yellow-600 bg-yellow-50';
-      case '고급': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
-    }
+    const difficultyMap = {
+      [t('common:difficulty.easy')]: 'text-green-600 bg-green-50',
+      [t('common:difficulty.medium')]: 'text-yellow-600 bg-yellow-50',
+      [t('common:difficulty.hard')]: 'text-red-600 bg-red-50',
+      '초급': 'text-green-600 bg-green-50',
+      '중급': 'text-yellow-600 bg-yellow-50',
+      '고급': 'text-red-600 bg-red-50',
+    };
+    return difficultyMap[difficulty] || 'text-gray-600 bg-gray-50';
   };
 
   const getCategoryColor = (category) => {
@@ -66,7 +76,7 @@ const RecipeCard = ({ recipe, onClick }) => {
           {recipe.title}
         </h3>
         <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
-          {recipe.description || '맛있는 요리 레시피입니다.'}
+          {recipe.description || t('hero.recipeDescription')}
         </p>
         
         {/* 메타 정보 */}
@@ -74,11 +84,11 @@ const RecipeCard = ({ recipe, onClick }) => {
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1 text-gray-500">
               <Clock className="w-4 h-4" />
-              {recipe.cookingTime}분
+              {recipe.cookingTime}{t('common:unit.minute')}
             </span>
             <span className="flex items-center gap-1 text-gray-500">
               <Users className="w-4 h-4" />
-              {recipe.servings}인분
+              {recipe.servings}{t('common:unit.serving')}
             </span>
           </div>
           <div className="flex items-center gap-3">

@@ -42,13 +42,16 @@ public class User {
     private String bio;
     
     @Column(nullable = false)
+    @Builder.Default
     private String role = "USER"; // USER, ADMIN
     
     @Column(nullable = false)
+    @Builder.Default
     private Boolean isActive = true;
     
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
+    @Builder.Default
     private List<Recipe> recipes = new ArrayList<>();
     
     // LazyInitializationException 방지를 위해 EAGER로 변경하거나 JsonIgnore 처리
@@ -56,6 +59,7 @@ public class User {
     @CollectionTable(name = "user_favorite_recipes", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "recipe_id")
     @JsonIgnore  // JSON 직렬화에서 제외
+    @Builder.Default
     private List<Long> favoriteRecipeIds = new ArrayList<>();
     
     @Column(nullable = false, updatable = false)

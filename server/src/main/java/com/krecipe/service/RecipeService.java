@@ -26,6 +26,7 @@ public class RecipeService {
     private final JwtUtil jwtUtil;
 
     // 레시피 목록 조회
+    @Transactional(readOnly = true)
     public Page<Recipe> getRecipes(String search, String category, String difficulty, String sortBy, Pageable pageable) {
         // 정렬 기준 설정
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
@@ -47,32 +48,67 @@ public class RecipeService {
 
         // 검색 및 필터링
         if (search != null && !search.isEmpty()) {
+            Page<Recipe> result;
             if (category != null && !category.isEmpty()) {
                 if (difficulty != null && !difficulty.isEmpty()) {
-                    return recipeRepository.findByTitleContainingAndCategoryAndDifficulty(search, category, difficulty, sortedPageable);
+                    result = recipeRepository.findByTitleContainingAndCategoryAndDifficulty(search, category, difficulty, sortedPageable);
+                } else {
+                    result = recipeRepository.findByTitleContainingAndCategory(search, category, sortedPageable);
                 }
-                return recipeRepository.findByTitleContainingAndCategory(search, category, sortedPageable);
+            } else {
+                result = recipeRepository.findByTitleContainingOrDescriptionContaining(search, search, sortedPageable);
             }
-            return recipeRepository.findByTitleContainingOrDescriptionContaining(search, search, sortedPageable);
+            // Lazy 로딩된 컬렉션들을 초기화
+            result.forEach(recipe -> initializeLazyCollections(recipe));
+            return result;
         }
 
         if (category != null && !category.isEmpty()) {
+            Page<Recipe> result;
             if (difficulty != null && !difficulty.isEmpty()) {
-                return recipeRepository.findByCategoryAndDifficulty(category, difficulty, sortedPageable);
+                result = recipeRepository.findByCategoryAndDifficulty(category, difficulty, sortedPageable);
+            } else {
+                result = recipeRepository.findByCategory(category, sortedPageable);
             }
-            return recipeRepository.findByCategory(category, sortedPageable);
+            // Lazy 로딩된 컬렉션들을 초기화
+            result.forEach(recipe -> initializeLazyCollections(recipe));
+            return result;
         }
 
         if (difficulty != null && !difficulty.isEmpty()) {
-            return recipeRepository.findByDifficulty(difficulty, sortedPageable);
+            Page<Recipe> result = recipeRepository.findByDifficulty(difficulty, sortedPageable);
+            // Lazy 로딩된 컬렉션들을 초기화
+            result.forEach(recipe -> initializeLazyCollections(recipe));
+            return result;
         }
 
-        return recipeRepository.findAll(sortedPageable);
+        Page<Recipe> result = recipeRepository.findAll(sortedPageable);
+        
+        // Lazy 로딩된 컬렉션들을 초기화
+        result.forEach(recipe -> initializeLazyCollections(recipe));
+        
+        return result;
+    }
+
+    // Lazy 컬렉션 초기화 헬퍼 메서드
+    private void initializeLazyCollections(Recipe recipe) {
+        if (recipe.getAuthor() != null) {
+            recipe.getAuthor().getUsername();
+        }
+        recipe.getIngredients().size();
+        recipe.getSteps().size();
+        recipe.getTags().size();
     }
 
     // 레시피 상세 조회
+    @Transactional(readOnly = true)
     public Recipe getRecipeById(Long id) {
-        return recipeRepository.findById(id).orElse(null);
+        Recipe recipe = recipeRepository.findById(id).orElse(null);
+        if (recipe != null) {
+            // Lazy 로딩된 컬렉션들을 초기화
+            initializeLazyCollections(recipe);
+        }
+        return recipe;
     }
 
     // 레시피 등록
@@ -174,29 +210,45 @@ public class RecipeService {
     }
 
     // 인기 레시피 조회
+    @Transactional(readOnly = true)
     public Page<Recipe> getPopularRecipes(Pageable pageable) {
-        return recipeRepository.findAll(
+        Page<Recipe> recipes = recipeRepository.findAll(
                 PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
                         Sort.by(Sort.Direction.DESC, "viewCount"))
         );
+        // Lazy 로딩된 컬렉션들을 초기화
+        recipes.forEach(this::initializeLazyCollections);
+        return recipes;
     }
 
     // 최신 레시피 조회
+    @Transactional(readOnly = true)
     public Page<Recipe> getRecentRecipes(Pageable pageable) {
-        return recipeRepository.findAll(
+        Page<Recipe> recipes = recipeRepository.findAll(
                 PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
                         Sort.by(Sort.Direction.DESC, "createdAt"))
         );
+        // Lazy 로딩된 컬렉션들을 초기화
+        recipes.forEach(this::initializeLazyCollections);
+        return recipes;
     }
 
     // 카테고리별 레시피 조회
+    @Transactional(readOnly = true)
     public Page<Recipe> getRecipesByCategory(String category, Pageable pageable) {
-        return recipeRepository.findByCategory(category, pageable);
+        Page<Recipe> recipes = recipeRepository.findByCategory(category, pageable);
+        // Lazy 로딩된 컬렉션들을 초기화
+        recipes.forEach(this::initializeLazyCollections);
+        return recipes;
     }
 
     // 사용자별 레시피 조회
+    @Transactional(readOnly = true)
     public Page<Recipe> getUserRecipes(Long userId, Pageable pageable) {
-        return recipeRepository.findByAuthorId(userId, pageable);
+        Page<Recipe> recipes = recipeRepository.findByAuthorId(userId, pageable);
+        // Lazy 로딩된 컬렉션들을 초기화
+        recipes.forEach(this::initializeLazyCollections);
+        return recipes;
     }
 
     // 토큰에서 사용자명 추출
