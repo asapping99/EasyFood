@@ -7,12 +7,17 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Clock, Users, BarChart, BookOpen, Heart, Edit, Trash2, Eye, Share2, Star } from 'lucide-react';
 import { getRecipeById, deleteRecipe, likeRecipe } from '../../api';
 import { formatDate } from '../../utils/api';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
   const { t } = useTranslation(['recipe', 'common']);
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
+
+  // 페이지 타이틀 동적 변경 (레시피 제목 포함)
+  usePageTitle('recipeDetail', recipe?.title);
 
   useEffect(() => {
     fetchRecipe();
@@ -116,9 +121,10 @@ const RecipeDetail = ({ recipeId, setCurrentPage, user, onNavigate }) => {
                 <div className="aspect-video bg-gradient-to-br from-orange-200 to-red-200 rounded-2xl overflow-hidden">
                   {recipe.imageUrl ? (
                     <img 
-                      src={recipe.imageUrl} 
+                      src={getImageUrl(recipe.imageUrl)} 
                       alt={recipe.title} 
                       className="w-full h-full object-cover"
+                      onError={handleImageError}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">

@@ -1,5 +1,5 @@
 {
-  "appName": "K-Recipe",
+  "appName": "Recipe Forest",
   "welcome": "Welcome",
   "loading": "Loading...",
   "error": "Error",
@@ -44,5 +44,47 @@
     "popular": "Popular",
     "likes": "Most Liked",
     "views": "Most Viewed"
+  },
+  "unit": {
+    "minute": "min",
+    "serving": "serving",
+    "people": "people"
+  },
+  "header": {
+    "searchPlaceholder": "Search by recipe name, ingredients...",
+    "searchPlaceholderMobile": "Search recipes...",
+    "addRecipe": "Add Recipe",
+    "profile": "Profile",
+    "myRecipes": "My Recipes",
+    "logout": "Logout",
+    "login": "Login"
+  },
+  "footer": {
+    "description": "Discover and share various Korean recipes that you can easily make at home. A cooking community where everyone from beginners to experts come together.",
+    "service": "Service",
+    "findRecipes": "Find Recipes",
+    "popularRecipes": "Popular Recipes",
+    "cookingTips": "Cooking Tips",
+    "community": "Community",
+    "support": "Support",
+    "help": "Help",
+    "contact": "Contact Us",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "copyright": "All rights reserved.",
+    "subtitle": "Recipe web service built with Spring Boot + React",
+    "madeWith": "Made with",
+    "by": "by Korean Developers"
+  },
+  "pageTitle": {
+    "home": "Recipe Forest - Delicious Recipes",
+    "login": "Login - Recipe Forest",
+    "register": "Sign Up - Recipe Forest",
+    "recipeDetail": "Recipe Details - Recipe Forest",
+    "createRecipe": "Add Recipe - Recipe Forest",
+    "editRecipe": "Edit Recipe - Recipe Forest",
+    "myRecipes": "My Recipes - Recipe Forest",
+    "profile": "Profile - Recipe Forest",
+    "default": "Recipe Forest - Recipe Platform"
   }
 }

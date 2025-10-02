@@ -14,6 +14,9 @@ import MyRecipesPage from './components/recipe/MyRecipesPage';
 import { apiRequest, tokenManager } from './utils/api';
 import './utils/i18n';
 
+// Hooks
+import { usePageTitle } from './hooks/usePageTitle';
+
 const App = () => {
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('home');
@@ -22,6 +25,18 @@ const App = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('전체');
+
+  // 페이지 타이틀 동적 변경
+  const pageTitleMap = {
+    'home': 'home',
+    'login': 'login',
+    'detail': 'recipeDetail',
+    'create': 'createRecipe',
+    'edit': 'editRecipe',
+    'profile': 'profile',
+    'my-recipes': 'myRecipes'
+  };
+  usePageTitle(pageTitleMap[currentPage] || 'default');
 
   // 페이지 로드 시 인증 확인
   useEffect(() => {

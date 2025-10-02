@@ -1,7 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChefHat, Github, Mail, Heart } from 'lucide-react';
 
 const Footer = () => {
+  const { t } = useTranslation('common');
+
   return (
     <footer className="bg-white/60 backdrop-blur border-t border-gray-200 mt-16">
       <div className="container mx-auto px-4 py-12">
@@ -10,11 +13,10 @@ const Footer = () => {
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <ChefHat className="w-6 h-6 text-orange-500" />
-              <span className="font-bold text-xl text-gradient">K-Recipe</span>
+              <span className="font-bold text-xl text-gradient">{t('appName')}</span>
             </div>
             <p className="text-gray-600 mb-4 leading-relaxed">
-              집에서 쉽게 만들 수 있는 다양한 한국 요리 레시피를 발견하고 공유하세요. 
-              요리 초보자부터 전문가까지 모두가 함께하는 요리 커뮤니티입니다.
+              {t('footer.description')}
             </p>
             <div className="flex items-center gap-4">
               <a
@@ -36,26 +38,26 @@ const Footer = () => {
 
           {/* 링크 섹션 */}
           <div>
-            <h3 className="font-semibold text-gray-800 mb-4">서비스</h3>
+            <h3 className="font-semibold text-gray-800 mb-4">{t('footer.service')}</h3>
             <ul className="space-y-2">
               <li>
                 <a href="#" className="text-gray-600 hover:text-orange-500 transition-colors">
-                  레시피 찾기
+                  {t('footer.findRecipes')}
                 </a>
               </li>
               <li>
                 <a href="#" className="text-gray-600 hover:text-orange-500 transition-colors">
-                  인기 레시피
+                  {t('footer.popularRecipes')}
                 </a>
               </li>
               <li>
                 <a href="#" className="text-gray-600 hover:text-orange-500 transition-colors">
-                  요리 팁
+                  {t('footer.cookingTips')}
                 </a>
               </li>
               <li>
                 <a href="#" className="text-gray-600 hover:text-orange-500 transition-colors">
-                  커뮤니티
+                  {t('footer.community')}
                 </a>
               </li>
             </ul>
@@ -63,26 +65,26 @@ const Footer = () => {
 
           {/* 지원 섹션 */}
           <div>
-            <h3 className="font-semibold text-gray-800 mb-4">지원</h3>
+            <h3 className="font-semibold text-gray-800 mb-4">{t('footer.support')}</h3>
             <ul className="space-y-2">
               <li>
                 <a href="#" className="text-gray-600 hover:text-orange-500 transition-colors">
-                  도움말
+                  {t('footer.help')}
                 </a>
               </li>
               <li>
                 <a href="#" className="text-gray-600 hover:text-orange-500 transition-colors">
-                  문의하기
+                  {t('footer.contact')}
                 </a>
               </li>
               <li>
                 <a href="#" className="text-gray-600 hover:text-orange-500 transition-colors">
-                  개인정보처리방침
+                  {t('footer.privacy')}
                 </a>
               </li>
               <li>
                 <a href="#" className="text-gray-600 hover:text-orange-500 transition-colors">
-                  이용약관
+                  {t('footer.terms')}
                 </a>
               </li>
             </ul>
@@ -93,13 +95,13 @@ const Footer = () => {
         <div className="border-t border-gray-200 pt-8 mt-8">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="text-sm text-gray-600 text-center md:text-left mb-4 md:mb-0">
-              <p>© 2025 K-Recipe. 모든 권리 보유.</p>
-              <p>Spring Boot + React로 만든 요리 레시피 웹서비스</p>
+              <p>© 2025 {t('appName')}. {t('footer.copyright')}</p>
+              <p>{t('footer.subtitle')}</p>
             </div>
             <div className="flex items-center text-sm text-gray-600">
-              <span>Made with</span>
+              <span>{t('footer.madeWith')}</span>
               <Heart className="w-4 h-4 text-red-500 mx-1" />
-              <span>by Korean Developers</span>
+              <span>{t('footer.by')}</span>
             </div>
           </div>
         </div>

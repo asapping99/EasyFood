@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ChefHat, Search, Plus, User, Moon, Sun, LogOut, Menu, X, Bell } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { ChefHat, Search, Plus, User, Moon, Sun, LogOut, Menu, X, Bell, Globe } from 'lucide-react';
 
 const Header = ({ 
   user, 
@@ -12,7 +13,14 @@ const Header = ({
   onLogout,
   onNavigate 
 }) => {
+  const { t, i18n } = useTranslation('common');
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  // 언어 전환 함수
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'ko' ? 'en' : 'ko';
+    i18n.changeLanguage(newLang);
+  };
 
   return (
     <nav className={`sticky top-0 z-50 ${darkMode ? 'bg-gray-800' : 'bg-white/80'} backdrop-blur-lg shadow-lg border-b border-gray-200/50`}>
@@ -26,7 +34,7 @@ const Header = ({
             >
               <ChefHat className="w-8 h-8 text-orange-500 group-hover:rotate-12 transition-transform duration-300" />
               <h1 className="text-xl font-bold text-gradient">
-                K-Recipe
+                {t('appName')}
               </h1>
             </button>
           </div>
@@ -37,7 +45,7 @@ const Header = ({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="요리명, 재료로 검색해보세요..."
+                placeholder={t('header.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-white/70 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
@@ -47,6 +55,18 @@ const Header = ({
 
           {/* 우측 메뉴 */}
           <div className="flex items-center gap-4">
+            {/* 언어 전환 버튼 */}
+            <button
+              onClick={toggleLanguage}
+              className="flex flex-row items-center p-2.5 rounded-xl hover:bg-gray-100 transition-all duration-300 hover:scale-105"
+              title={i18n.language === 'ko' ? 'Switch to English' : '한국어로 전환'}
+            >
+              <Globe className="w-5 h-5 text-gray-600" />
+              <span className="ml-1 text-xs font-medium text-gray-600">
+                {i18n.language === 'ko' ? 'EN' : 'KO'}
+              </span>
+            </button>
+
             {/* 다크모드 토글 */}
             <button
               onClick={() => setDarkMode(!darkMode)}
@@ -67,7 +87,7 @@ const Header = ({
                   className="hidden md:flex items-center gap-2 px-4 py-2.5 btn-primary text-white rounded-xl font-semibold text-sm"
                 >
                   <Plus className="w-4 h-4" />
-                  레시피 등록
+                  {t('header.addRecipe')}
                 </button>
 
                 {/* 알림 버튼 */}
@@ -101,7 +121,7 @@ const Header = ({
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       >
                         <User className="w-4 h-4 inline mr-2" />
-                        프로필
+                        {t('header.profile')}
                       </button>
                       <button
                         onClick={() => {
@@ -111,7 +131,7 @@ const Header = ({
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       >
                         <ChefHat className="w-4 h-4 inline mr-2" />
-                        내 레시피
+                        {t('header.myRecipes')}
                       </button>
                       <hr className="my-2 border-gray-200" />
                       <button
@@ -122,7 +142,7 @@ const Header = ({
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <LogOut className="w-4 h-4 inline mr-2" />
-                        로그아웃
+                        {t('header.logout')}
                       </button>
                     </div>
                   )}
@@ -133,7 +153,7 @@ const Header = ({
                 onClick={() => onNavigate('login')}
                 className="px-6 py-2.5 btn-primary text-white rounded-xl font-semibold text-sm"
               >
-                로그인
+                {t('header.login')}
               </button>
             )}
 
@@ -156,7 +176,7 @@ const Header = ({
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
-                  placeholder="요리명, 재료로 검색..."
+                  placeholder={t('header.searchPlaceholderMobile')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -175,7 +195,7 @@ const Header = ({
                   className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-xl transition-colors"
                 >
                   <Plus className="w-5 h-5 text-orange-500" />
-                  레시피 등록
+                  {t('header.addRecipe')}
                 </button>
                 <button
                   onClick={() => {
@@ -185,7 +205,7 @@ const Header = ({
                   className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-xl transition-colors"
                 >
                   <ChefHat className="w-5 h-5 text-orange-500" />
-                  내 레시피
+                  {t('header.myRecipes')}
                 </button>
               </div>
             )}

@@ -5,6 +5,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Clock, Users, Eye, Heart, Star, ChefHat } from 'lucide-react';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 const RecipeCard = ({ recipe, onClick }) => {
   const { t } = useTranslation(['recipe', 'common']);
@@ -42,9 +43,10 @@ const RecipeCard = ({ recipe, onClick }) => {
       <div className="h-48 bg-gradient-to-br from-orange-200 to-red-200 relative overflow-hidden">
         {recipe.imageUrl ? (
           <img 
-            src={recipe.imageUrl} 
+            src={getImageUrl(recipe.imageUrl)} 
             alt={recipe.title} 
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" 
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+            onError={handleImageError}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

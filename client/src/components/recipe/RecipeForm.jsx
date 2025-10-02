@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Plus, X, Upload, Clock, Users, BarChart, Tag, ChefHat, Save, Eye } from 'lucide-react';
 import { getRecipeById, createRecipe, updateRecipe } from '../../api';
 import { CATEGORIES, DIFFICULTIES } from '../../utils/constants';
+import ImageUpload from '../common/ImageUpload';
 
 const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
   const { t } = useTranslation(['recipe', 'common', 'validation']);
@@ -349,39 +350,12 @@ const RecipeForm = ({ setCurrentPage, recipeId = null, user }) => {
                       />
                     </div>
 
-                    {/* 이미지 URL */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        {t('form.imageUrl')}
-                      </label>
-                      <div className="flex gap-2">
-                        <input
-                          type="url"
-                          value={formData.imageUrl}
-                          onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-                          className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
-                          placeholder={t('form.imageUrlPlaceholder')}
-                        />
-                        <button
-                          type="button"
-                          className="px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl hover:bg-gray-200 transition-colors"
-                        >
-                          <Upload className="w-5 h-5 text-gray-600" />
-                        </button>
-                      </div>
-                      {formData.imageUrl && (
-                        <div className="mt-3">
-                          <img 
-                            src={formData.imageUrl} 
-                            alt={t('form.preview')}
-                            className="w-full h-32 object-cover rounded-lg"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
+                    {/* 이미지 업로드 */}
+                    <ImageUpload
+                      onImageUploaded={(fileUrl) => setFormData({...formData, imageUrl: fileUrl})}
+                      initialImageUrl={formData.imageUrl}
+                      label={t('form.imageUrl')}
+                    />
                   </div>
 
                   <div className="space-y-6">

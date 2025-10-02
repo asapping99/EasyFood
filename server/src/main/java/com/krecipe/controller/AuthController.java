@@ -202,4 +202,12 @@ public class AuthController {
         boolean exists = authService.existsByUsername(username);
         return ResponseEntity.ok(Map.of("exists", exists));
     }
+    
+    // CSRF 토큰 발급 (클라이언트가 CSRF 토큰을 받을 수 있도록)
+    @GetMapping("/csrf")
+    public ResponseEntity<?> getCsrfToken() {
+        // CSRF 토큰은 Spring Security가 자동으로 쿠키에 설정
+        // 이 엔드포인트는 클라이언트가 토큰을 받기 위해 호출
+        return ResponseEntity.ok(Map.of("message", "CSRF token issued"));
+    }
 }

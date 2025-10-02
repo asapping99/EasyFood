@@ -1,5 +1,5 @@
 {
-  "appName": "K-Recipe",
+  "appName": "레시피 숲",
   "welcome": "환영합니다",
   "loading": "로딩 중...",
   "loadingData": "데이터를 불러오고 있어요...",
@@ -58,5 +58,42 @@
     "minute": "분",
     "serving": "인분",
     "people": "명"
+  },
+  "header": {
+    "searchPlaceholder": "요리명, 재료로 검색해보세요...",
+    "searchPlaceholderMobile": "요리명, 재료로 검색...",
+    "addRecipe": "레시피 등록",
+    "profile": "프로필",
+    "myRecipes": "내 레시피",
+    "logout": "로그아웃",
+    "login": "로그인"
+  },
+  "footer": {
+    "description": "집에서 쉽게 만들 수 있는 다양한 한국 요리 레시피를 발견하고 공유하세요. 요리 초보자부터 전문가까지 모두가 함께하는 요리 커뮤니티입니다.",
+    "service": "서비스",
+    "findRecipes": "레시피 찾기",
+    "popularRecipes": "인기 레시피",
+    "cookingTips": "요리 팁",
+    "community": "커뮤니티",
+    "support": "지원",
+    "help": "도움말",
+    "contact": "문의하기",
+    "privacy": "개인정보처리방침",
+    "terms": "이용약관",
+    "copyright": "모든 권리 보유.",
+    "subtitle": "Spring Boot + React로 만든 요리 레시피 웹서비스",
+    "madeWith": "Made with",
+    "by": "by Korean Developers"
+  },
+  "pageTitle": {
+    "home": "레시피 숲 - 맛있는 요리 레시피",
+    "login": "로그인 - 레시피 숲",
+    "register": "회원가입 - 레시피 숲",
+    "recipeDetail": "레시피 상세 - 레시피 숲",
+    "createRecipe": "레시피 등록 - 레시피 숲",
+    "editRecipe": "레시피 수정 - 레시피 숲",
+    "myRecipes": "내 레시피 - 레시피 숲",
+    "profile": "프로필 - 레시피 숲",
+    "default": "레시피 숲 - 요리 레시피 플랫폼"
   }
 }

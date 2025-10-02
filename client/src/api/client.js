@@ -1,6 +1,8 @@
 /**
  * API 클라이언트
  * 모든 HTTP 요청을 처리하는 공통 fetch 클라이언트입니다.
+ * - 세션 기반 인증
+ * - CSRF 토큰 자동 처리
  */
 
 import { API_CONFIG, HTTP_STATUS } from './config';
@@ -13,6 +15,14 @@ export const tokenManager = {
   setToken: (token) => localStorage.setItem('token', token),
   removeToken: () => localStorage.removeItem('token'),
   isAuthenticated: () => !!localStorage.getItem('token'),
+};
+
+/**
+ * 쿠키에서 CSRF 토큰 가져오기
+ */
+const getCsrfToken = () => {
+  const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : null;
 };
 
 /**
@@ -71,10 +81,19 @@ const handleResponse = async (response) => {
 const buildHeaders = (customHeaders = {}) => {
   const headers = { ...API_CONFIG.DEFAULT_HEADERS };
   
-  // 인증 토큰 추가
+  // 인증 토큰 추가 (JWT 방식 - 하위 호환성)
   const token = tokenManager.getToken();
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+  }
+  
+  // CSRF 토큰 추가 (개발 환경에서는 무시)
+  // 운영 환경에서만 CSRF 토큰을 헤더에 추가
+  if (process.env.NODE_ENV === 'production' || process.env.REACT_APP_ENABLE_CSRF === 'true') {
+    const csrfToken = getCsrfToken();
+    if (csrfToken) {
+      headers['X-XSRF-TOKEN'] = csrfToken;
+    }
   }
   
   // 커스텀 헤더 병합 (Content-Type이 명시적으로 null이면 제거)
@@ -220,4 +239,19 @@ export const uploadFile = (endpoint, file, additionalData = {}) => {
   });
   
   return post(endpoint, formData);
+};
+
+/**
+ * CSRF 토큰 갱신을 위한 헬퍼
+ * 운영 환경에서 CSRF 토큰이 필요한 경우 사용
+ */
+export const refreshCsrfToken = async () => {
+  try {
+    // CSRF 토큰을 받기 위한 GET 요청
+    await get('/auth/csrf');
+    return getCsrfToken();
+  } catch (error) {
+    console.error('CSRF 토큰 갱신 실패:', error);
+    return null;
+  }
 };
